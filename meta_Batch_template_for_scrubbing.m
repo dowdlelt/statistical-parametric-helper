@@ -2,18 +2,26 @@ function [] = batch_template()
 
 %This function has been modified to automate the import of the ART
 %Detection Tool box. The assumption has been made that the files are
-%labeled artifact outliers and movement_wae.*mat
+%labeled artifact_outliers_and_movement_wae.*.mat
+
 %This is a safe assumption, assuming that they were slice timed, and then
 %the artifacts were calculated from those files. A variety of different
 %methods could be used here, so it would be best to edit that area if this
-%script is used in different areas. 
+%script is used in a new application.  
 
 %The contrasts are generated using the function that finds the number of
-%regressors
+%regressors. At the moment this is very ugly, and just kicks through the number, 
+%which I know apriori. A more robust implementation will be used in the future. 
+%This will allow the code to be more versatile. 
 
-%This is all kind of specialized for that very specific purpose. 
+%This is all kind of specialized for that very specific purpose.
 
+%Edits added by Logan Dowdle
+%2015/10/14 - Changed the artifact directory to a variable, so only one change would need to be made if different files were used. 
+%2015/10/12 - added in all of the artifact dealing stuff
+%2015/09/25 - changed the first level threshold to -inf, this keeps it from masking on skull stripped brains. 
 
+%% Below are the notes from the original creator of this code - bless them. 
 
 % This function is an example of how to set up a batch script for running
 % SPM8 routines across multiple subjects. It loops across subjects, 
@@ -26,13 +34,6 @@ function [] = batch_template()
 %
 % Author: Maureen Ritchey, updated 03/2013
 
-%
-%Logan
-% Data directory is here 
-%/data/cairhive0/studies_large/hanlon_share/Test-retest/subjects/controls/001_xl/convert/anat
-
-%9/17/2015 - change it so that it wouldn't mask out dark areas of the brain
-%- hope this works correctly. 
 clear all;
 curdir = pwd;
 clear all;
@@ -43,6 +44,8 @@ outLabel = 'spec_est_con_crave_scrub'; %output label
 subjects = {'403' '405' '409' '411' '415' '417' '421' '424' '427' '430' '433' '436' '438' '404' '408' '410' '412' '416' '419' '422' '426' '429' '432' '435' '437'};
 dataDir = '/data/cairhive0/studies_large/hanlon_share/Thetaburst/subjects/Cocaine/';
 runs = {'real/run1_craving_preTBS' 'real/run6_craving_postTBS' 'sham/run1_craving_preTBS' 'sham/run6_craving_postTBS'};
+%Variables related to artifacts:
+regrName = 'art*t_wae*.mat';
 
 numSubjs = length(subjects);
 fprintf('Performing first level analysis for %d subjects. \n',numSubjs);
@@ -62,7 +65,7 @@ for i=1:length(subjects)
     %change to furst run directory
     cd(strcat(b.dataDir, b.runs{1}, '/'));
     %need to load the art_outlier_and_movement_ matfile  
-    b.run1RegressorList = dir('art*t_wae*.mat'); %this is specific to the output of ART and should be made a variable
+    b.run1RegressorList = dir(regrName); %this is specific to the output of ART and should be made a variable
     %/\ generate the filename, which a bunch extra
     b.outlier_mat1 = load(b.run1RegressorList.name);
     %/\load, just using the file itself
@@ -70,7 +73,7 @@ for i=1:length(subjects)
     
     cd(strcat(b.dataDir, b.runs{2}, '/'));
     %need to load the art_outlier_and_movement_ matfile  
-    b.run2RegressorList = dir('art*t_wae*.mat');
+    b.run2RegressorList = dir(regrName);
     %/\ generate the filename, which a bunch extra
     b.outlier_mat2 = load(b.run2RegressorList.name);
     %/\load, just using the file itself
@@ -78,7 +81,7 @@ for i=1:length(subjects)
     
    cd(strcat(b.dataDir, b.runs{3}, '/'));
     %need to load the art_outlier_and_movement_ matfile  
-    b.run3RegressorList = dir('art*t_wae*.mat');
+    b.run3RegressorList = dir(regrName);
     %/\ generate the filename, which a bunch extra
     b.outlier_mat3 = load(b.run3RegressorList.name);
     %/\load, just using the file itself
@@ -86,14 +89,11 @@ for i=1:length(subjects)
     
     cd(strcat(b.dataDir, b.runs{4}, '/'));
     %need to load the art_outlier_and_movement_ matfile  
-    b.run4RegressorList = dir('art*t_wae*.mat');
+    b.run4RegressorList = dir(regrName);
     %/\ generate the filename, which a bunch extra
     b.outlier_mat4 = load(b.run4RegressorList.name);
     %/\load, just using the file itself
     b.numRegress4 = size(b.outlier_mat4.R,2)
-    
-       
-    
     
     %specify matlabbatch variable with subject-specific inputs
     %this is created prior to running the batch
