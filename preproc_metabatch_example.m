@@ -12,11 +12,11 @@ function [] = preproc_metabatch_example()
 % Author: Maureen Ritchey, updated 03/2013
 
 %
-%Logan
-% Data directory is here 
+% Logan edited this 20180628
+% Just have to edit the top variables and directores
 %
-%This version is being modified to work with the motor task in stroke
-%folks. 
+% and then put in your batch SPM code at the end of the script
+% good luck. My email is logan.dowdle@gmail.com 
 
 clear all;
 curdir = pwd;
